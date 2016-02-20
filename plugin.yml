@@ -1,0 +1,4 @@
+name: DailyLogonTrackerMain
+version: 1.0
+author: trainphreak
+main: com.trainphreak.minecraft.dailylogontracker.DailyLogonTrackerMain
