@@ -1,0 +1,18 @@
+# Changes to this file take effect immediately; make sure your YAML is
+#   tab-free to avoid errors/crashes
+#
+# Each line here will be executed the first time a player logs on
+#   each day (but not on first logon)
+#
+# One day is midnight to midnight, server local time (which may vary
+#   depending on host location)
+#
+# Lines beginning with "C:" will run as console commands
+# Lines beginning with "B:" will be broadcast to all players
+# Lines beginning with "P:" will be sent privately to the player
+#
+# %name% will be replaced with the name of the player logging on
+on-daily-logon:
+  - "B:Welcome back to the server, %name%!"
+  - "C:eco give %name% 100"
+  - "P:You have been given $100 as a logon reward"
