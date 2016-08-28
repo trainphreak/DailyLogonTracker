@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 import sun.util.resources.cldr.aa.CalendarData_aa_DJ;
 
 import java.sql.Connection;
@@ -133,7 +134,9 @@ public class PlayerJoinListener implements Listener
                             plugin.getLogger().info(player.getName() + " already logged in today but they're getting a reward anyway. Tell trainphreak about this. Like now.");
                         }
                     }
-                        plugin.getLogger().info("Giving reward to " + player.getName());
+                    plugin.getLogger().info("Giving reward to " + player.getName());
+
+                    // Run tasks for logon
                     List<String> statements = plugin.getConfig().getStringList("on-daily-logon");
                     for (String str : statements)
                     {
@@ -146,9 +149,18 @@ public class PlayerJoinListener implements Listener
                         }
                         else if (str.charAt(0) == 'C')
                         {
-                            if (debug)
-                                plugin.getLogger().info("Executing console command: \"" + str.substring(2) + "\"");
-                            dispatchConsoleCommand(str.substring(2));
+                            if (str.substring(2,7).equals("enjin"))
+                            {
+                                if (debug)
+                                    plugin.getLogger().info("Executing Enjin command: \"" + str.substring(2) + "\"");
+                                dispatchEnjinCommand(str.substring(2));
+                            }
+                            else
+                            {
+                                if (debug)
+                                    plugin.getLogger().info("Executing console command: \"" + str.substring(2) + "\"");
+                                dispatchConsoleCommand(str.substring(2));
+                            }
                         }
                         else if (str.charAt(0) == 'P')
                         {
@@ -216,7 +228,13 @@ public class PlayerJoinListener implements Listener
         this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, new DelayedMessage(player, message), 10L);
     }
 
-    class DelayedBroadcast implements Runnable
+    private void dispatchEnjinCommand(String command)
+    {
+        ServerCommandEvent stupidUnnecessaryServerCommandEvent = new ServerCommandEvent(Bukkit.getConsoleSender(), command);
+        Bukkit.getServer().getPluginManager().callEvent(stupidUnnecessaryServerCommandEvent);
+    }
+
+    private class DelayedBroadcast implements Runnable
     {
         String broadcast;
 
@@ -231,7 +249,7 @@ public class PlayerJoinListener implements Listener
         }
     }
 
-    class DelayedConsoleCommand implements Runnable
+    private class DelayedConsoleCommand implements Runnable
     {
         String command;
 
@@ -246,7 +264,7 @@ public class PlayerJoinListener implements Listener
         }
     }
 
-    class DelayedMessage implements Runnable
+    private class DelayedMessage implements Runnable
     {
         Player player;
         String message;
