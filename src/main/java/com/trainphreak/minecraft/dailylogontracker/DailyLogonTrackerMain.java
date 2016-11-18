@@ -7,11 +7,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-import java.util.Calendar;
 
 public class DailyLogonTrackerMain extends JavaPlugin
 {
-    public static DailyLogonTrackerMain plugin;
+    private static DailyLogonTrackerMain plugin;
     public final String prefix = "[DailyLogonTracker] ";
     private PlayerJoinListener joinListener;
     private Connection databaseConnection;

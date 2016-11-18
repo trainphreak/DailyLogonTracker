@@ -8,7 +8,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-import sun.util.resources.cldr.aa.CalendarData_aa_DJ;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -17,7 +16,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public class PlayerJoinListener implements Listener
