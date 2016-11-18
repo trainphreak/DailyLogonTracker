@@ -2,7 +2,7 @@
 #   tab-free to avoid errors/crashes
 #
 # Each line here will be executed the first time a player logs on
-#   each day (but not on first logon)
+#   each day (except for the first time they join the server)
 #
 # One day is midnight to midnight, server local time (which may vary
 #   depending on host location)
