@@ -12,6 +12,7 @@
 # Lines beginning with "P:" will be sent privately to the player
 #
 # %name% will be replaced with the name of the player logging on
+# All commands should be entered without a leading slash ('/')
 on-daily-logon:
   - "B:Welcome back to the server, %name%!"
   - "C:eco give %name% 100"
