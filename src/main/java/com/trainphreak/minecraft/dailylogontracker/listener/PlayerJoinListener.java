@@ -1,5 +1,7 @@
 package com.trainphreak.minecraft.dailylogontracker.listener;
 
+import com.enjin.core.EnjinServices;
+import com.enjin.rpc.mappings.services.PointService;
 import com.trainphreak.minecraft.dailylogontracker.DailyLogonTrackerMain;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -22,11 +24,25 @@ public class PlayerJoinListener implements Listener
 {
     private DailyLogonTrackerMain plugin;
     private Connection databaseConnection;
+    private PointService enjinPointService = null;
 
     public PlayerJoinListener(final DailyLogonTrackerMain plugin, final Connection connection)
     {
         this.plugin = plugin;
         this.databaseConnection = connection;
+        try
+        {
+            this.enjinPointService = EnjinServices.getService(PointService.class);
+        }
+        catch (Exception e)
+        {
+            plugin.log.warning("Enjin plugin is not installed. 'E:' commands will be ignored.");
+            if (plugin.getConfig().getBoolean("debug", false))
+            {
+                plugin.log.info("Exception caught: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
     @EventHandler (priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -44,10 +60,10 @@ public class PlayerJoinListener implements Listener
         todaysDate.clear(Calendar.SECOND);
         todaysDate.clear(Calendar.MILLISECOND);
         if (debug)
-            plugin.getLogger().info("Today: " + dateFormat.format(todaysDate.getTime()));
+            plugin.log.info("Today: " + dateFormat.format(todaysDate.getTime()));
 
         if (debug)
-            plugin.getLogger().info("Player " + player.getName() + " (" + playerUUID.toString() + ") logged on");
+            plugin.log.info("Player " + player.getName() + " (" + playerUUID.toString() + ") logged on");
 
         // Get player's last logon date from DB
         //   select lastlogon where uuid = uuid.toString
@@ -67,14 +83,14 @@ public class PlayerJoinListener implements Listener
             while (resultSet.next())
             {
                 if (debug)
-                    plugin.getLogger().info("UUID found in database");
+                    plugin.log.info("UUID found in database");
                 dbUUID = UUID.fromString(resultSet.getString("Uuid"));
                 if (debug)
-                    plugin.getLogger().info(dbUUID.toString());
+                    plugin.log.info(dbUUID.toString());
 
                 String dbDateString = resultSet.getString("LastLogon");
                 if (debug)
-                    plugin.getLogger().info("LastLogon: " + dbDateString);
+                    plugin.log.info("LastLogon: " + dbDateString);
                 String[] datePieces = dbDateString.split("-");
                 dbDate = Calendar.getInstance();
                 dbDate.clear();
@@ -84,25 +100,25 @@ public class PlayerJoinListener implements Listener
                 dbDate.set(year,month,day);
 
                 if (debug)
-                    plugin.getLogger().info("UUID: " + dbUUID.toString() + ", LastLogon: " + dateFormat.format(dbDate.getTime()));
+                    plugin.log.info("UUID: " + dbUUID.toString() + ", LastLogon: " + dateFormat.format(dbDate.getTime()));
             }
 
             if (dbUUID == null)
             {
                 if (debug)
-                    plugin.getLogger().info("UUID not found in database");
+                    plugin.log.info("UUID not found in database");
                 sql = "INSERT INTO DailyLogonTracker (Uuid,LastLogon) " +
                                     "VALUES ('" + playerUUID.toString() + "', '" + dateFormat.format(todaysDate.getTime()) + "');";
                 statement.executeUpdate(sql);
                 if (debug)
-                    plugin.getLogger().info("Added " + playerUUID.toString() + " to the database");
+                    plugin.log.info("Added " + playerUUID.toString() + " to the database");
             }
             else
             {
                 if (debug)
                 {
-                    plugin.getLogger().info("Today " + todaysDate.get(Calendar.YEAR) + "-" + (todaysDate.get(Calendar.MONTH)+1) + "-" + todaysDate.get(Calendar.DATE));
-                    plugin.getLogger().info("DB " + dbDate.get(Calendar.YEAR) + "-" + (dbDate.get(Calendar.MONTH)+1) + "-" + dbDate.get(Calendar.DATE));
+                    plugin.log.info("Today " + todaysDate.get(Calendar.YEAR) + "-" + (todaysDate.get(Calendar.MONTH)+1) + "-" + todaysDate.get(Calendar.DATE));
+                    plugin.log.info("DB " + dbDate.get(Calendar.YEAR) + "-" + (dbDate.get(Calendar.MONTH)+1) + "-" + dbDate.get(Calendar.DATE));
                 }
                 if (
                         (todaysDate.get(Calendar.YEAR) > dbDate.get(Calendar.YEAR)) ||
@@ -114,25 +130,25 @@ public class PlayerJoinListener implements Listener
                     {
                         if (todaysDate.get(Calendar.YEAR) > dbDate.get(Calendar.YEAR))
                         {
-                            plugin.getLogger().info(todaysDate.get(Calendar.YEAR) + " > " + dbDate.get(Calendar.YEAR));
+                            plugin.log.info(todaysDate.get(Calendar.YEAR) + " > " + dbDate.get(Calendar.YEAR));
                         }
                         else if ((todaysDate.get(Calendar.YEAR) == dbDate.get(Calendar.YEAR)) && (todaysDate.get(Calendar.MONTH) > dbDate.get(Calendar.MONTH)))
                         {
-                            plugin.getLogger().info(todaysDate.get(Calendar.YEAR) + " = " + dbDate.get(Calendar.YEAR));
-                            plugin.getLogger().info(todaysDate.get(Calendar.MONTH) + " > " + dbDate.get(Calendar.MONTH));
+                            plugin.log.info(todaysDate.get(Calendar.YEAR) + " = " + dbDate.get(Calendar.YEAR));
+                            plugin.log.info(todaysDate.get(Calendar.MONTH) + " > " + dbDate.get(Calendar.MONTH));
                         }
                         else if ((todaysDate.get(Calendar.YEAR) == dbDate.get(Calendar.YEAR)) && (todaysDate.get(Calendar.MONTH) == dbDate.get(Calendar.MONTH)) && (todaysDate.get(Calendar.DATE) > dbDate.get(Calendar.DATE)))
                         {
-                            plugin.getLogger().info(todaysDate.get(Calendar.YEAR) + " = " + dbDate.get(Calendar.YEAR));
-                            plugin.getLogger().info(todaysDate.get(Calendar.MONTH) + " = " + dbDate.get(Calendar.MONTH));
-                            plugin.getLogger().info(todaysDate.get(Calendar.DATE) + " > " + dbDate.get(Calendar.DATE));
+                            plugin.log.info(todaysDate.get(Calendar.YEAR) + " = " + dbDate.get(Calendar.YEAR));
+                            plugin.log.info(todaysDate.get(Calendar.MONTH) + " = " + dbDate.get(Calendar.MONTH));
+                            plugin.log.info(todaysDate.get(Calendar.DATE) + " > " + dbDate.get(Calendar.DATE));
                         }
                         else
                         {
-                            plugin.getLogger().info(player.getName() + " already logged in today but they're getting a reward anyway. Tell trainphreak about this. Like now.");
+                            plugin.log.info(player.getName() + " already logged in today but they're getting a reward anyway. Tell trainphreak about this. Like now.");
                         }
                     }
-                    plugin.getLogger().info("Giving reward to " + player.getName());
+                    plugin.log.info("Giving reward to " + player.getName());
 
                     // Run tasks for logon
                     List<String> statements = plugin.getConfig().getStringList("on-daily-logon");
@@ -142,33 +158,38 @@ public class PlayerJoinListener implements Listener
                         if (str.charAt(0) == 'B')
                         {
                             if (debug)
-                                plugin.getLogger().info("Broadcasting: \"" + str.substring(2) + "\"");
+                                plugin.log.info("Broadcasting: \"" + str.substring(2) + "\"");
                             sendBroadcast(str.substring(2));
                         }
                         else if (str.charAt(0) == 'C')
                         {
-                            if (str.substring(2,7).equals("enjin"))
+                            if (debug)
+                                    plugin.log.info("Executing console command: \"" + str.substring(2) + "\"");
+                                dispatchConsoleCommand(str.substring(2));
+                        }
+                        else if (str.charAt(0) == 'E')
+                        {
+                            int points = Integer.parseInt(str.substring(2));
+                            if (enjinPointService != null)
                             {
+                                enjinPointService.add(player.getName(), points);
                                 if (debug)
-                                    plugin.getLogger().info("Executing Enjin command: \"" + str.substring(2) + "\"");
-                                dispatchEnjinCommand(str.substring(2));
+                                    plugin.log.info("Giving " + points + " points to " + player.getName());
                             }
                             else
                             {
-                                if (debug)
-                                    plugin.getLogger().info("Executing console command: \"" + str.substring(2) + "\"");
-                                dispatchConsoleCommand(str.substring(2));
+                                plugin.log.warning("Skipping giving " + points + " points to " + player.getName() + " because the Enjin plugin is not installed");
                             }
                         }
                         else if (str.charAt(0) == 'P')
                         {
                             if (debug)
-                                plugin.getLogger().info("Messaging " + player.getName() + ": \"" + str.substring(2) + "\"");
+                                plugin.log.info("Messaging " + player.getName() + ": \"" + str.substring(2) + "\"");
                             sendMessage(player, str.substring(2));
                         }
                         else
                         {
-                            plugin.getLogger().info("Invalid logon statement: " + str);
+                            plugin.log.info("Invalid logon statement: " + str);
                         }
                     }
 
@@ -177,13 +198,13 @@ public class PlayerJoinListener implements Listener
                             "WHERE Uuid = '" + dbUUID + "';";
                     statement.executeUpdate(sql);
                     if (debug)
-                        plugin.getLogger().info(player.getName() + "'s logon date updated to " + dateFormat.format(todaysDate.getTime()));
+                        plugin.log.info(player.getName() + "'s logon date updated to " + dateFormat.format(todaysDate.getTime()));
                 }
                 else
                 {
                     if (debug)
                     {
-                        plugin.getLogger().info("Player " + player.getName() + " already logged in today");
+                        plugin.log.info("Player " + player.getName() + " already logged in today");
                     }
                 }
             }
@@ -204,7 +225,7 @@ public class PlayerJoinListener implements Listener
             {
                 if(debug)
                 {
-                    plugin.getLogger().warning("Something broke...");
+                    plugin.log.warning("Something broke...");
                     e.printStackTrace();
                 }
             }

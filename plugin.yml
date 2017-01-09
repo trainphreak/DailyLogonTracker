@@ -1,4 +1,5 @@
 name: DailyLogonTracker
-version: 1.11
+version: 1.11.1
 author: trainphreak
+softdepend: [EnjinMinecraftPlugin]
 main: com.trainphreak.minecraft.dailylogontracker.DailyLogonTrackerMain

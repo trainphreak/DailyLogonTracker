@@ -7,10 +7,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.logging.Logger;
 
 public class DailyLogonTrackerMain extends JavaPlugin
 {
     private static DailyLogonTrackerMain plugin;
+    public Logger log;
     public final String prefix = "[DailyLogonTracker] ";
     private PlayerJoinListener joinListener;
     private Connection databaseConnection;
@@ -18,6 +20,7 @@ public class DailyLogonTrackerMain extends JavaPlugin
     public void onEnable()
     {
         DailyLogonTrackerMain.plugin = this;
+        this.log = Logger.getLogger("Minecraft");
         this.saveDefaultConfig();
         // open DB
         try
@@ -27,7 +30,7 @@ public class DailyLogonTrackerMain extends JavaPlugin
         }
         catch (Exception e)
         {
-            this.getLogger().warning("Error connecting to database.");
+            log.warning("Error connecting to database.");
             e.printStackTrace();
             databaseConnection = null;
             this.setEnabled(false);
@@ -45,7 +48,7 @@ public class DailyLogonTrackerMain extends JavaPlugin
         }
         catch (Exception e)
         {
-            this.getLogger().warning("Error creating/checking for table.");
+            log.warning("Error creating/checking for table.");
             e.printStackTrace();
             try
             {
@@ -76,7 +79,7 @@ public class DailyLogonTrackerMain extends JavaPlugin
         }
         catch (Exception e)
         {
-            this.getLogger().warning("Error closing the database.");
+            log.warning("Error closing the database.");
             e.printStackTrace();
         }
         finally
